@@ -3,16 +3,10 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from '../../context/AuthContext';
 
-// Socket.io connects directly to Teams backend (not through gateway)
-// Gateway is HTTP-only proxy, can't handle WebSocket upgrades easily
-// Auto-detect production vs development
-const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
-const isProduction = hostname !== 'localhost' && hostname !== '127.0.0.1' && hostname !== '';
-const SOCKET_URL = isProduction
-    ? 'https://vyapar360-teams.onrender.com'
-    : (import.meta.env.VITE_TEAMS_SOCKET_URL || 'http://localhost:5002');
+// Socket.io connects directly to Teams backend
+const SOCKET_URL = import.meta.env.VITE_TEAMS_SOCKET_URL || 'https://vyapar360-teams.onrender.com';
 
-console.log('[TeamsSocket] hostname:', hostname, '| isProduction:', isProduction, '| SOCKET_URL:', SOCKET_URL);
+console.log('[TeamsSocket] SOCKET_URL:', SOCKET_URL);
 
 export function useSocket() {
     const { auth } = useAuth();
