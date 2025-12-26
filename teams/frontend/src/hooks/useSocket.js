@@ -5,7 +5,11 @@ import { useAuth } from '../../../../erp/frontend/src/context/AuthContext';
 
 // Socket.io connects directly to Teams backend (not through gateway)
 // Gateway is HTTP-only proxy, can't handle WebSocket upgrades easily
-const SOCKET_URL = import.meta.env.VITE_TEAMS_SOCKET_URL || 'http://localhost:5002';
+// Auto-detect production vs development
+const isProduction = window.location.hostname !== 'localhost';
+const SOCKET_URL = isProduction 
+    ? 'https://vyapar360-teams.onrender.com' 
+    : (import.meta.env.VITE_TEAMS_SOCKET_URL || 'http://localhost:5002');
 
 export function useSocket() {
     const { auth } = useAuth();

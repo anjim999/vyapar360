@@ -5,7 +5,11 @@ import { useAuth } from '../context/AuthContext';
 
 // Socket.io connects directly to ERP backend (not through gateway)
 // Gateway is HTTP-only proxy, can't handle WebSocket upgrades easily
-const SOCKET_URL = import.meta.env.VITE_ERP_SOCKET_URL || 'http://localhost:5001';
+// Auto-detect production vs development
+const isProduction = window.location.hostname !== 'localhost';
+const SOCKET_URL = isProduction
+    ? 'https://vyapar360-erp.onrender.com'
+    : (import.meta.env.VITE_ERP_SOCKET_URL || 'http://localhost:5001');
 
 export function useSocket() {
     const { auth } = useAuth();
