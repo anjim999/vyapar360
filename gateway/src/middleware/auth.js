@@ -59,7 +59,7 @@ export async function authMiddleware(req, res, next) {
     console.error('JWT error:', err);
     return res.status(401).json({
       success: false,
-      error: 'Invalid or expired token'
+      error: err.message
     });
   }
 }
