@@ -1,0 +1,77 @@
+{
+    "app": {
+        "name": "Vyapar360",
+        "tagline": "Enterprise ERP Platform"
+    },
+    "nav": {
+        "dashboard": "Dashboard",
+        "finance": "Finance",
+        "projects": "Projects",
+        "hr": "HR Management",
+        "inventory": "Inventory",
+        "crm": "CRM",
+        "settings": "Settings",
+        "profile": "Profile",
+        "logout": "Logout"
+    },
+    "common": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "add": "Add",
+        "search": "Search",
+        "filter": "Filter",
+        "export": "Export",
+        "import": "Import",
+        "loading": "Loading...",
+        "noData": "No data available",
+        "success": "Success",
+        "error": "Error",
+        "confirm": "Confirm",
+        "back": "Back",
+        "next": "Next",
+        "submit": "Submit",
+        "view": "View",
+        "actions": "Actions"
+    },
+    "auth": {
+        "login": "Login",
+        "register": "Register",
+        "email": "Email",
+        "password": "Password",
+        "forgotPassword": "Forgot Password?",
+        "rememberMe": "Remember me",
+        "loginWithGoogle": "Login with Google",
+        "noAccount": "Don't have an account?",
+        "alreadyAccount": "Already have an account?"
+    },
+    "dashboard": {
+        "welcome": "Welcome to Vyapar360",
+        "totalRevenue": "Total Revenue",
+        "totalEmployees": "Total Employees",
+        "activeProjects": "Active Projects",
+        "pendingInvoices": "Pending Invoices"
+    },
+    "hr": {
+        "employees": "Employees",
+        "departments": "Departments",
+        "attendance": "Attendance",
+        "leaves": "Leaves",
+        "holidays": "Holidays",
+        "payroll": "Payroll"
+    },
+    "finance": {
+        "invoices": "Invoices",
+        "payments": "Payments",
+        "accounts": "Accounts",
+        "expenses": "Expenses",
+        "reports": "Reports"
+    },
+    "projects": {
+        "allProjects": "All Projects",
+        "tasks": "Tasks",
+        "timeline": "Timeline",
+        "budget": "Budget"
+    }
+}

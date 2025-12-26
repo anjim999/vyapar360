@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/favicon.png" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="Vyapar360 - Enterprise ERP System for Indian Businesses. Manage HR, Finance, Inventory, CRM, and Projects in one platform." />
+  <meta name="keywords" content="ERP, Business Management, HR, Finance, Inventory, CRM, India, GST" />
+  <meta name="author" content="Vyapar360" />
+  <meta name="theme-color" content="#667eea" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Vyapar360" />
+  <title>Vyapar360 | Enterprise ERP Platform</title>
+</head>
+
+<body class="bg-slate-50">
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+  <script>
+    // Register service worker for PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('SW registered:', registration.scope);
+          })
+          .catch((error) => {
+            console.log('SW registration failed:', error);
+          });
+      });
+    }
+  </script>
+</body>
+
+</html>

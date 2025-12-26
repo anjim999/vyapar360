@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Service Worker Cache</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        button {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+
+        button:hover {
+            background: #c82333;
+        }
+
+        .success {
+            background: #28a745;
+        }
+
+        .success:hover {
+            background: #218838;
+        }
+
+        #status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔧 Service Worker Cache Manager</h1>
+        <p>If you're experiencing Socket.io or API issues, clear the service worker cache:</p>
+
+        <button onclick="unregisterServiceWorker()">Unregister Service Worker</button>
+        <button onclick="clearCache()">Clear All Caches</button>
+        <button onclick="doAll()" class="success">Do Everything & Reload</button>
+
+        <div id="status"></div>
+    </div>
+
+    <script>
+        function showStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = type;
+            status.style.display = 'block';
+        }
+
+        async function unregisterServiceWorker() {
+            try {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (let registration of registrations) {
+                    await registration.unregister();
+                }
+                showStatus('✅ Service worker unregistered!', 'info');
+            } catch (err) {
+                showStatus('❌ Error: ' + err.message, 'warning');
+            }
+        }
+
+        async function clearCache() {
+            try {
+                const cacheNames = await caches.keys();
+                await Promise.all(cacheNames.map(name => caches.delete(name)));
+                showStatus('✅ All caches cleared!', 'info');
+            } catch (err) {
+                showStatus('❌ Error: ' + err.message, 'warning');
+            }
+        }
+
+        async function doAll() {
+            showStatus('🔄 Working...', 'info');
+            await unregisterServiceWorker();
+            await clearCache();
+            showStatus('✅ Done! Reloading in 2 seconds...', 'info');
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 2000);
+        }
+    </script>
+</body>
+
+</html>

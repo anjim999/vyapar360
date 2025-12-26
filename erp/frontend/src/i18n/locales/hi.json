@@ -1,0 +1,77 @@
+{
+    "app": {
+        "name": "व्यापार360",
+        "tagline": "एंटरप्राइज ERP प्लेटफॉर्म"
+    },
+    "nav": {
+        "dashboard": "डैशबोर्ड",
+        "finance": "वित्त",
+        "projects": "प्रोजेक्ट्स",
+        "hr": "मानव संसाधन",
+        "inventory": "इन्वेंटरी",
+        "crm": "ग्राहक संबंध",
+        "settings": "सेटिंग्स",
+        "profile": "प्रोफाइल",
+        "logout": "लॉगआउट"
+    },
+    "common": {
+        "save": "सेव करें",
+        "cancel": "रद्द करें",
+        "delete": "हटाएं",
+        "edit": "संपादित करें",
+        "add": "जोड़ें",
+        "search": "खोजें",
+        "filter": "फ़िल्टर",
+        "export": "निर्यात",
+        "import": "आयात",
+        "loading": "लोड हो रहा है...",
+        "noData": "कोई डेटा उपलब्ध नहीं",
+        "success": "सफल",
+        "error": "त्रुटि",
+        "confirm": "पुष्टि करें",
+        "back": "वापस",
+        "next": "आगे",
+        "submit": "जमा करें",
+        "view": "देखें",
+        "actions": "कार्रवाई"
+    },
+    "auth": {
+        "login": "लॉगिन",
+        "register": "पंजीकरण",
+        "email": "ईमेल",
+        "password": "पासवर्ड",
+        "forgotPassword": "पासवर्ड भूल गए?",
+        "rememberMe": "मुझे याद रखें",
+        "loginWithGoogle": "Google से लॉगिन करें",
+        "noAccount": "खाता नहीं है?",
+        "alreadyAccount": "पहले से खाता है?"
+    },
+    "dashboard": {
+        "welcome": "व्यापार360 में आपका स्वागत है",
+        "totalRevenue": "कुल राजस्व",
+        "totalEmployees": "कुल कर्मचारी",
+        "activeProjects": "सक्रिय प्रोजेक्ट्स",
+        "pendingInvoices": "लंबित चालान"
+    },
+    "hr": {
+        "employees": "कर्मचारी",
+        "departments": "विभाग",
+        "attendance": "उपस्थिति",
+        "leaves": "छुट्टियाँ",
+        "holidays": "त्योहार",
+        "payroll": "वेतन"
+    },
+    "finance": {
+        "invoices": "चालान",
+        "payments": "भुगतान",
+        "accounts": "खाते",
+        "expenses": "खर्च",
+        "reports": "रिपोर्ट"
+    },
+    "projects": {
+        "allProjects": "सभी प्रोजेक्ट्स",
+        "tasks": "कार्य",
+        "timeline": "समयरेखा",
+        "budget": "बजट"
+    }
+}
