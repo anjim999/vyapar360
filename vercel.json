@@ -1,0 +1,12 @@
+{
+    "buildCommand": "cd erp/frontend && npm install && npm run build",
+    "outputDirectory": "erp/frontend/dist",
+    "installCommand": "cd erp/frontend && npm install && cd ../../teams/frontend && npm install",
+    "framework": null,
+    "rewrites": [
+        {
+            "source": "/(.*)",
+            "destination": "/index.html"
+        }
+    ]
+}
