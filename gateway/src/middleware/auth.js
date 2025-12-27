@@ -2,7 +2,7 @@
 import jwt from 'jsonwebtoken';
 import pool from '../config/pool.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+import { JWT_SECRET } from '../config/env.js';
 
 /**
  * Authentication middleware - verifies JWT token

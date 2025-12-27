@@ -275,7 +275,7 @@ app.use(errorHandler);
 // START SERVER
 // ============================================
 app.listen(PORT, async () => {
-    console.log(`🚀 API Gateway running on http://localhost:${PORT}`);
+    console.log(`🚀 API Gateway running on port ${PORT}`);
     console.log(`📡 ERP Backend: ${ERP_BACKEND_URL}`);
     console.log(`📡 Teams Backend: ${TEAMS_BACKEND_URL}`);
 
