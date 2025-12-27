@@ -15,5 +15,5 @@ export const BREVO_API_KEY = process.env.BREVO_API_KEY;
 export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 
 // Gateway communication
-export const GATEWAY_URL = process.env.GATEWAY_URL || 'http://localhost:5000';
+export const GATEWAY_URL = process.env.GATEWAY_URL;
 export const GATEWAY_INTERNAL_SECRET = process.env.GATEWAY_INTERNAL_SECRET;

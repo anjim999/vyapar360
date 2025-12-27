@@ -1,24 +1,19 @@
 import pkg from "pg";
-import dotenv from "dotenv";
-import path from "path";
-import { fileURLToPath } from "url";
+import { DATABASE_URL } from "../config/env.js";
 
 const { Pool } = pkg;
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({
-  path: path.join(__dirname, "..", "..", ".env"),
-});
+// Config loaded by env.js
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: DATABASE_URL,
   // Connection pool settings - production optimized
   max: 50, // Maximum connections (adjust based on DB limits)
   min: 5, // Keep 5 connections alive for faster response
   idleTimeoutMillis: 30000, // Close idle connections after 30 seconds
   connectionTimeoutMillis: 20000, // Wait up to 20s for available connection
   // For Neon/Supabase serverless
-  ssl: process.env.DATABASE_URL?.includes('neon') || process.env.DATABASE_URL?.includes('supabase')
+  ssl: DATABASE_URL?.includes('neon') || DATABASE_URL?.includes('supabase')
     ? { rejectUnauthorized: false }
     : false,
 });

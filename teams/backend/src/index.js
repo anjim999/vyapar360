@@ -10,6 +10,6 @@ const server = http.createServer(app);
 initializeSocket(server);
 
 server.listen(PORT, () => {
-    console.log(`🚀 Teams Backend running on http://localhost:${PORT}`);
+    console.log(`🚀 Teams Backend running on port ${PORT}`);
     console.log(`📡 WebSocket ready for chat connections`);
 });

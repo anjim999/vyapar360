@@ -1,10 +1,5 @@
 import axios from "axios";
-
-// Auto-detect production vs development
-const isProduction = typeof window !== 'undefined' && window.location.hostname !== 'localhost';
-const API_BASE_URL = isProduction
-  ? 'https://vyapar360-gateway.onrender.com'
-  : (import.meta.env.VITE_API_URL || "http://localhost:5000");
+import { API_BASE_URL } from "../config/env";
 
 const api = axios.create({
   baseURL: API_BASE_URL,

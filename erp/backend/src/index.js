@@ -13,7 +13,7 @@ initializeSocket(server);
 // Run database migrations on startup
 runMigrations().then(() => {
   server.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📡 WebSocket ready for connections`);
   });
 });

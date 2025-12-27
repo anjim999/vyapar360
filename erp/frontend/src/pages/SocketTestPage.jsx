@@ -1,6 +1,7 @@
 // src/pages/SocketTestPage.jsx - WebSocket Testing Page
 import { useState, useEffect } from 'react';
 import { useSocket } from '../hooks/useSocket';
+import { ERP_SOCKET_URL } from '../config/env';
 
 export default function SocketTestPage() {
     const { isConnected, socket, emit, subscribe } = useSocket();
@@ -48,7 +49,7 @@ export default function SocketTestPage() {
                             Socket ID: {socket?.id || 'N/A'}
                         </p>
                         <p className="text-sm text-green-800">
-                            Connected to: {import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000'}
+                            Connected to: {ERP_SOCKET_URL}
                         </p>
                     </div>
                 )}
@@ -116,15 +117,15 @@ export default function SocketTestPage() {
                             <div
                                 key={idx}
                                 className={`p-3 rounded ${msg.type === 'sent' ? 'bg-blue-50 border-l-4 border-blue-500' :
-                                        msg.type === 'received' ? 'bg-green-50 border-l-4 border-green-500' :
-                                            'bg-yellow-50 border-l-4 border-yellow-500'
+                                    msg.type === 'received' ? 'bg-green-50 border-l-4 border-green-500' :
+                                        'bg-yellow-50 border-l-4 border-yellow-500'
                                     }`}
                             >
                                 <div className="flex justify-between items-start">
                                     <div>
                                         <span className={`text-xs font-medium ${msg.type === 'sent' ? 'text-blue-600' :
-                                                msg.type === 'received' ? 'text-green-600' :
-                                                    'text-yellow-600'
+                                            msg.type === 'received' ? 'text-green-600' :
+                                                'text-yellow-600'
                                             }`}>
                                             {msg.type === 'sent' ? '📤 SENT' : msg.type === 'received' ? '📥 RECEIVED' : '🔔 PING'}
                                         </span>
