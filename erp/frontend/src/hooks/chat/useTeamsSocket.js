@@ -3,8 +3,9 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from '../../context/AuthContext';
 
+import { TEAMS_SOCKET_URL as SOCKET_URL } from '../../config/env';
+
 // Socket.io connects directly to Teams backend
-const SOCKET_URL = import.meta.env.VITE_TEAMS_SOCKET_URL;
 
 console.log('[TeamsSocket] SOCKET_URL:', SOCKET_URL);
 

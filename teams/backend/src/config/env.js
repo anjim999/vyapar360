@@ -10,3 +10,6 @@ dotenv.config({
 
 export const PORT = process.env.TEAMS_PORT || 5002;
 export const JWT_SECRET = process.env.JWT_SECRET;
+
+// Database
+export const DATABASE_URL = process.env.DATABASE_URL;

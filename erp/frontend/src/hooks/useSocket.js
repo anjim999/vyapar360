@@ -3,8 +3,9 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from '../context/AuthContext';
 
+import { ERP_SOCKET_URL as SOCKET_URL } from '../config/env';
+
 // Socket.io connects directly to ERP backend
-const SOCKET_URL = import.meta.env.VITE_ERP_SOCKET_URL;
 
 console.log('[ERPSocket] SOCKET_URL:', SOCKET_URL);
 
