@@ -44,12 +44,12 @@ export async function createEmployeeAccount(req, res) {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create user account
+        // Create user account with company_id
         const userResult = await client.query(
-            `INSERT INTO users (name, email, password, role, company_id, is_active, email_verified, created_by)
-       VALUES ($1, $2, $3, $4, $5, true, true, $6)
-       RETURNING id, name, email, role`,
-            [name, email, hashedPassword, role || 'employee', companyId, userId]
+            `INSERT INTO users (name, email, password, role, company_id, is_active, is_verified)
+       VALUES ($1, $2, $3, $4, $5, true, true)
+       RETURNING id, name, email, role, company_id`,
+            [name, email, hashedPassword, role || 'employee', companyId]
         );
 
         const newUser = userResult.rows[0];

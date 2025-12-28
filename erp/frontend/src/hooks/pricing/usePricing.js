@@ -4,7 +4,8 @@ import { useAuth } from '../../context/AuthContext';
 import { getPlans, getCurrentSubscription } from '../../services/subscriptionService';
 
 export function usePricing() {
-    const { user } = useAuth();
+    const { auth } = useAuth();
+    const user = auth?.user;
     const [plans, setPlans] = useState([]);
     const [currentPlan, setCurrentPlan] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -12,7 +13,7 @@ export function usePricing() {
 
     useEffect(() => {
         loadData();
-    }, [user]);
+    }, [auth]);
 
     async function loadData() {
         try {
@@ -22,7 +23,7 @@ export function usePricing() {
                 setPlans(plansRes.data);
             }
 
-            if (user?.companyId) {
+            if (user?.company_id) {
                 try {
                     const subRes = await getCurrentSubscription();
                     if (subRes.success) {
@@ -40,6 +41,9 @@ export function usePricing() {
         }
     }
 
+    // Only company_admin, hr_manager, manager, and platform_admin can manage subscriptions
+    const canManageSubscription = user && ['company_admin', 'hr', 'hr_manager', 'manager', 'platform_admin'].includes(user.role);
+
     return {
         plans,
         currentPlan,
@@ -47,6 +51,7 @@ export function usePricing() {
         loading,
         error,
         setError,
-        user
+        user,
+        canManageSubscription
     };
 }

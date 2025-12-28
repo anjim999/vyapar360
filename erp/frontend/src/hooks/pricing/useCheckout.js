@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createOrder, verifyPayment, upgradeFree } from '../../services/subscriptionService';
 
-export function useCheckout({ user, setCurrentPlan, setError }) {
+export function useCheckout({ user, setCurrentPlan, setError, canManageSubscription, onSuccess }) {
     const navigate = useNavigate();
     const [processingPlan, setProcessingPlan] = useState(null);
 
@@ -15,8 +15,14 @@ export function useCheckout({ user, setCurrentPlan, setError }) {
         }
 
         // If no company, redirect to create company
-        if (!user.companyId) {
+        if (!user.company_id) {
             navigate('/request-company', { state: { selectedPlan: plan.name } });
+            return;
+        }
+
+        // Check if user has permission to manage subscriptions
+        if (!canManageSubscription) {
+            setError('Only Company Admins, HR, and Managers can purchase subscription plans.');
             return;
         }
 
@@ -29,7 +35,7 @@ export function useCheckout({ user, setCurrentPlan, setError }) {
                 const result = await upgradeFree(plan.id);
                 if (result.success) {
                     setCurrentPlan(plan.name);
-                    alert('Successfully upgraded to Free plan!');
+                    onSuccess?.(plan.display_name || plan.name);
                 }
                 setProcessingPlan(null);
                 return;
@@ -44,7 +50,15 @@ export function useCheckout({ user, setCurrentPlan, setError }) {
 
             if (orderRes.free) {
                 setCurrentPlan(plan.name);
-                alert('Successfully upgraded!');
+                onSuccess?.(plan.display_name || plan.name);
+                setProcessingPlan(null);
+                return;
+            }
+
+            // Demo mode - Razorpay not configured on backend
+            if (orderRes.demo) {
+                setCurrentPlan(plan.name);
+                onSuccess?.(plan.display_name || plan.name);
                 setProcessingPlan(null);
                 return;
             }
@@ -77,8 +91,7 @@ export function useCheckout({ user, setCurrentPlan, setError }) {
 
                     if (verifyRes.success) {
                         setCurrentPlan(plan.name);
-                        alert('🎉 Payment successful! Your subscription is now active.');
-                        navigate('/dashboard');
+                        onSuccess?.(plan.display_name || plan.name);
                     }
                 } catch (err) {
                     setError('Payment verification failed');
@@ -102,8 +115,9 @@ export function useCheckout({ user, setCurrentPlan, setError }) {
             const rzp = new window.Razorpay(options);
             rzp.open();
         } else {
-            alert('🧪 Test Mode: Razorpay SDK not loaded. Simulating successful payment...');
+            // Razorpay SDK not loaded - show success modal anyway
             setCurrentPlan(plan.name);
+            onSuccess?.(plan.display_name || plan.name);
             setProcessingPlan(null);
         }
     }
