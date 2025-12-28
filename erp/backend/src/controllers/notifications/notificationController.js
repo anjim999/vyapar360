@@ -36,6 +36,18 @@ export async function markAsRead(req, res) {
     }
 }
 
+export async function markAllAsRead(req, res) {
+    try {
+        const { userId } = req.user;
+        const result = await notificationService.markNotificationAsRead(userId, "all");
+        res.json(result);
+    } catch (err) {
+        console.error("Error:", err);
+        res.status(500).json({ success: false, error: "Failed" });
+    }
+}
+
+
 export async function deleteNotification(req, res) {
     try {
         const { userId } = req.user;

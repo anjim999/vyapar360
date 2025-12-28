@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { useTeamsNotification } from "../../context/TeamsNotificationContext";
 import {
     FaHome, FaUsers, FaMoneyBillWave, FaProjectDiagram, FaBoxes,
     FaChartLine, FaCog, FaBuilding, FaBriefcase, FaEnvelope,
@@ -18,6 +19,10 @@ export function Sidebar({ isOpen, onClose }) {
     const { auth } = useAuth();
     const location = useLocation();
     const [expandedMenus, setExpandedMenus] = useState({});
+
+    // Get Teams notification count for badge
+    const teamsNotification = useTeamsNotification();
+    const teamsUnreadCount = teamsNotification?.unreadCount || 0;
 
     const userRole = auth?.user?.role || ROLES.EMPLOYEE;
 
@@ -40,6 +45,7 @@ export function Sidebar({ isOpen, onClose }) {
                 name: "Teams Chat",
                 path: "/teams",
                 icon: <FaComments />,
+                badge: teamsUnreadCount,
             },
         ];
 
@@ -270,7 +276,12 @@ export function Sidebar({ isOpen, onClose }) {
         `}
             >
                 <span className="text-lg">{item.icon}</span>
-                <span className="font-medium">{item.name}</span>
+                <span className="font-medium flex-1">{item.name}</span>
+                {item.badge > 0 && (
+                    <span className="min-w-[20px] h-5 px-1.5 flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">
+                        {item.badge > 99 ? "99+" : item.badge}
+                    </span>
+                )}
             </NavLink>
         );
     };

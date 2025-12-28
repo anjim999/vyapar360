@@ -12,6 +12,7 @@ import {
     FaFilePdf, FaPlay, FaPause, FaBackward, FaForward, FaVolumeUp, FaVolumeMute, FaExpand, FaCompress
 } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
+import { useTeamsNotification } from '../../context/TeamsNotificationContext';
 import { useSocket } from '../../hooks/chat/useTeamsSocket';
 import api from '../../api/axiosClient';
 import { formatDistanceToNow, format } from 'date-fns';
@@ -43,6 +44,7 @@ export default function TeamsPage() {
     const navigate = useNavigate();
     const { auth } = useAuth();
     const { subscribe } = useSocket();
+    const { clearUnreadCount } = useTeamsNotification();
 
     // Navigation State
     const [activeNav, setActiveNav] = useState('chat');
@@ -173,6 +175,9 @@ export default function TeamsPage() {
     // Initial Load - ONLY fetch essential data (teams list and recent chats)
     // Don't load all channels upfront - load them when team is selected!
     useEffect(() => {
+        // Clear Teams notification unread count when page loads
+        clearUnreadCount();
+
         const loadEssentials = async () => {
             try {
                 // Parallel loading for speed
