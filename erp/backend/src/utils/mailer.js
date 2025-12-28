@@ -5,11 +5,11 @@ import { BREVO_API_KEY, EMAIL_FROM } from '../config/env.js';
 function getSender() {
   const [senderName, senderEmailRaw] = EMAIL_FROM?.includes('<')
     ? EMAIL_FROM.split('<')
-    : ['Devopod ERP', EMAIL_FROM || 'noreply@devopod.com'];
+    : ['Vyapar360', EMAIL_FROM || 'noreply@vyapar360.com'];
 
   return {
-    email: senderEmailRaw?.replace('>', '').trim() || 'noreply@devopod.com',
-    name: senderName?.trim() || 'Devopod ERP',
+    email: senderEmailRaw?.replace('>', '').trim() || 'noreply@vyapar360.com',
+    name: senderName?.trim() || 'Vyapar360',
   };
 }
 
@@ -97,14 +97,14 @@ function wrapInTemplate(title, content) {
     <body style="${templates.baseStyle}">
       <div style="${templates.cardStyle}">
         <div style="${templates.headerStyle}">
-          <h1 style="color: #ffffff; margin: 0; font-size: 24px;">🏢 Devopod ERP</h1>
+          <h1 style="color: #ffffff; margin: 0; font-size: 24px;">🏢 Vyapar360</h1>
         </div>
         <div style="padding: 30px;">
           <h2 style="color: #333; margin-top: 0;">${title}</h2>
           ${content}
           <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
           <p style="color: #888; font-size: 12px; text-align: center;">
-            © ${new Date().getFullYear()} Devopod Technologies. All rights reserved.
+            © ${new Date().getFullYear()} Vyapar360. All rights reserved.
           </p>
         </div>
       </div>
@@ -134,7 +134,7 @@ export async function sendOtpEmail({ to, otp, purpose }) {
 
   return sendEmail({
     to,
-    subject: `${otp} - Your OTP for Devopod ERP`,
+    subject: `${otp} - Your OTP for Vyapar360`,
     htmlContent: wrapInTemplate(title, content),
   });
 }
@@ -146,7 +146,7 @@ export async function sendWelcomeEmail({ to, name }) {
       Hi <strong>${name}</strong>,
     </p>
     <p style="color: #555; line-height: 1.6;">
-      Welcome to <strong>Devopod ERP</strong>! Your account has been successfully created.
+      Welcome to <strong>Vyapar360</strong>! Your account has been successfully created.
     </p>
     <p style="color: #555; line-height: 1.6;">
       Here's what you can do now:
@@ -157,13 +157,13 @@ export async function sendWelcomeEmail({ to, name }) {
       <li>🤝 Connect with businesses across India</li>
     </ul>
     <div style="text-align: center;">
-      <a href="https://devopod.com/dashboard" style="${templates.buttonStyle}">Go to Dashboard</a>
+      <a href="https://vyapar360.vercel.app/dashboard" style="${templates.buttonStyle}">Go to Dashboard</a>
     </div>
   `;
 
   return sendEmail({
     to,
-    subject: 'Welcome to Devopod ERP! 🎉',
+    subject: 'Welcome to Vyapar360! 🎉',
     htmlContent: wrapInTemplate('Welcome Aboard!', content),
   });
 }
@@ -176,7 +176,7 @@ export async function sendCompanyApprovalEmail({ to, name, companyName, approved
       Hi <strong>${name}</strong>,
     </p>
     <p style="color: #555; line-height: 1.6;">
-      Great news! Your company <strong>"${companyName}"</strong> has been approved and is now active on Devopod ERP.
+      Great news! Your company <strong>"${companyName}"</strong> has been approved and is now active on Vyapar360.
     </p>
     <p style="color: #555; line-height: 1.6;">
       You now have access to all company admin features:
@@ -189,7 +189,7 @@ export async function sendCompanyApprovalEmail({ to, name, companyName, approved
       <li>📊 Projects Module - Tasks and milestones</li>
     </ul>
     <div style="text-align: center;">
-      <a href="https://devopod.com/dashboard" style="${templates.buttonStyle}">Access Dashboard</a>
+      <a href="https://vyapar360.vercel.app/dashboard" style="${templates.buttonStyle}">Access Dashboard</a>
     </div>
   ` : `
     <p style="color: #555; line-height: 1.6;">
@@ -206,7 +206,7 @@ export async function sendCompanyApprovalEmail({ to, name, companyName, approved
 
   return sendEmail({
     to,
-    subject: approved ? `${companyName} is now live on Devopod! 🚀` : `Update on your company registration`,
+    subject: approved ? `${companyName} is now live on Vyapar360! 🚀` : `Update on your company registration`,
     htmlContent: wrapInTemplate(title, content),
   });
 }
@@ -227,7 +227,7 @@ export async function sendPasswordChangedEmail({ to, name }) {
 
   return sendEmail({
     to,
-    subject: 'Password Changed - Devopod ERP',
+    subject: 'Password Changed - Vyapar360',
     htmlContent: wrapInTemplate('Password Updated', content),
   });
 }
@@ -239,7 +239,7 @@ export async function sendEmployeeWelcomeEmail({ to, name, companyName, tempPass
       Hi <strong>${name}</strong>,
     </p>
     <p style="color: #555; line-height: 1.6;">
-      You have been added as an employee at <strong>${companyName}</strong> on Devopod ERP.
+      You have been added as an employee at <strong>${companyName}</strong> on Vyapar360.
     </p>
     <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0;">
       <p style="margin: 0 0 10px 0;"><strong>Your Login Credentials:</strong></p>
@@ -248,13 +248,13 @@ export async function sendEmployeeWelcomeEmail({ to, name, companyName, tempPass
     </div>
     <p style="color: #e74c3c; font-size: 13px;">⚠️ Please change your password after first login.</p>
     <div style="text-align: center;">
-      <a href="https://devopod.com/login" style="${templates.buttonStyle}">Login Now</a>
+      <a href="https://vyapar360.vercel.app/login" style="${templates.buttonStyle}">Login Now</a>
     </div>
   `;
 
   return sendEmail({
     to,
-    subject: `Welcome to ${companyName} on Devopod ERP`,
+    subject: `Welcome to ${companyName} on Vyapar360`,
     htmlContent: wrapInTemplate('Welcome to the Team!', content),
   });
 }
@@ -305,6 +305,32 @@ export async function sendNotificationEmail({ to, title, message, actionUrl, act
   });
 }
 
+// New Company Request Email (for Platform Admin)
+export async function sendNewCompanyRequestEmail({ to, adminName, companyName, userName, industry }) {
+  const content = `
+    <p style="color: #555; line-height: 1.6;">
+      Hi <strong>${adminName || 'Admin'}</strong>,
+    </p>
+    <p style="color: #555; line-height: 1.6;">
+      A new company registration request has been submitted and requires your review.
+    </p>
+    <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0;">
+      <p style="margin: 5px 0;"><strong>Company Name:</strong> ${companyName}</p>
+      <p style="margin: 5px 0;"><strong>Requested By:</strong> ${userName}</p>
+      <p style="margin: 5px 0;"><strong>Industry:</strong> ${industry}</p>
+    </div>
+    <div style="text-align: center;">
+      <a href="https://vyapar360.vercel.app/admin/company-requests" style="${templates.buttonStyle}">Review Request</a>
+    </div>
+  `;
+
+  return sendEmail({
+    to,
+    subject: `🏢 New Company Request: ${companyName}`,
+    htmlContent: wrapInTemplate('New Company Registration Request', content),
+  });
+}
+
 // Export all functions
 export default {
   sendOtpEmail,
@@ -314,4 +340,5 @@ export default {
   sendEmployeeWelcomeEmail,
   sendInvoiceEmail,
   sendNotificationEmail,
+  sendNewCompanyRequestEmail,
 };

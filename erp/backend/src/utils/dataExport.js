@@ -8,87 +8,87 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // Ensure exports directory exists
 const exportsDir = path.join(__dirname, '..', '..', 'exports');
 if (!fs.existsSync(exportsDir)) {
-    fs.mkdirSync(exportsDir, { recursive: true });
+  fs.mkdirSync(exportsDir, { recursive: true });
 }
 
 // ============== CSV Export ==============
 export function exportToCSV(data, filename, columns) {
-    if (!data || !Array.isArray(data) || data.length === 0) {
-        return { success: false, error: 'No data to export' };
-    }
+  if (!data || !Array.isArray(data) || data.length === 0) {
+    return { success: false, error: 'No data to export' };
+  }
 
-    try {
-        // Get column headers
-        const headers = columns || Object.keys(data[0]);
+  try {
+    // Get column headers
+    const headers = columns || Object.keys(data[0]);
 
-        // Build CSV content
-        let csvContent = headers.join(',') + '\n';
+    // Build CSV content
+    let csvContent = headers.join(',') + '\n';
 
-        data.forEach(row => {
-            const values = headers.map(header => {
-                let value = row[header] ?? '';
+    data.forEach(row => {
+      const values = headers.map(header => {
+        let value = row[header] ?? '';
 
-                // Handle different types
-                if (typeof value === 'object' && value !== null) {
-                    value = JSON.stringify(value);
-                }
+        // Handle different types
+        if (typeof value === 'object' && value !== null) {
+          value = JSON.stringify(value);
+        }
 
-                // Escape special characters
-                value = String(value).replace(/"/g, '""');
+        // Escape special characters
+        value = String(value).replace(/"/g, '""');
 
-                // Quote if contains comma, newline, or quote
-                if (value.includes(',') || value.includes('\n') || value.includes('"')) {
-                    value = `"${value}"`;
-                }
+        // Quote if contains comma, newline, or quote
+        if (value.includes(',') || value.includes('\n') || value.includes('"')) {
+          value = `"${value}"`;
+        }
 
-                return value;
-            });
+        return value;
+      });
 
-            csvContent += values.join(',') + '\n';
-        });
+      csvContent += values.join(',') + '\n';
+    });
 
-        // Write to file
-        const filePath = path.join(exportsDir, `${filename}.csv`);
-        fs.writeFileSync(filePath, csvContent, 'utf8');
+    // Write to file
+    const filePath = path.join(exportsDir, `${filename}.csv`);
+    fs.writeFileSync(filePath, csvContent, 'utf8');
 
-        return {
-            success: true,
-            filePath,
-            filename: `${filename}.csv`,
-            size: Buffer.byteLength(csvContent, 'utf8')
-        };
-    } catch (error) {
-        console.error('CSV export error:', error);
-        return { success: false, error: error.message };
-    }
+    return {
+      success: true,
+      filePath,
+      filename: `${filename}.csv`,
+      size: Buffer.byteLength(csvContent, 'utf8')
+    };
+  } catch (error) {
+    console.error('CSV export error:', error);
+    return { success: false, error: error.message };
+  }
 }
 
 // ============== JSON Export ==============
 export function exportToJSON(data, filename) {
-    if (!data) {
-        return { success: false, error: 'No data to export' };
-    }
+  if (!data) {
+    return { success: false, error: 'No data to export' };
+  }
 
-    try {
-        const jsonContent = JSON.stringify(data, null, 2);
-        const filePath = path.join(exportsDir, `${filename}.json`);
-        fs.writeFileSync(filePath, jsonContent, 'utf8');
+  try {
+    const jsonContent = JSON.stringify(data, null, 2);
+    const filePath = path.join(exportsDir, `${filename}.json`);
+    fs.writeFileSync(filePath, jsonContent, 'utf8');
 
-        return {
-            success: true,
-            filePath,
-            filename: `${filename}.json`,
-            size: Buffer.byteLength(jsonContent, 'utf8')
-        };
-    } catch (error) {
-        console.error('JSON export error:', error);
-        return { success: false, error: error.message };
-    }
+    return {
+      success: true,
+      filePath,
+      filename: `${filename}.json`,
+      size: Buffer.byteLength(jsonContent, 'utf8')
+    };
+  } catch (error) {
+    console.error('JSON export error:', error);
+    return { success: false, error: error.message };
+  }
 }
 
 // ============== HTML to PDF (Simple) ==============
 export function generatePDFHTML(title, content, styles = '') {
-    return `
+  return `
     <!DOCTYPE html>
     <html>
     <head>
@@ -153,12 +153,12 @@ export function generatePDFHTML(title, content, styles = '') {
 
 // Generate Invoice PDF HTML
 export function generateInvoicePDF(invoice, company, customer) {
-    const items = invoice.items || [];
-    const subtotal = items.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
-    const tax = subtotal * (invoice.tax_rate || 0) / 100;
-    const total = subtotal + tax;
+  const items = invoice.items || [];
+  const subtotal = items.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
+  const tax = subtotal * (invoice.tax_rate || 0) / 100;
+  const total = subtotal + tax;
 
-    const content = `
+  const content = `
     <div class="header">
       <h1>${company?.name || 'Company Name'}</h1>
       <p>${company?.address || ''} ${company?.city || ''}</p>
@@ -226,25 +226,25 @@ export function generateInvoicePDF(invoice, company, customer) {
 
     <div class="footer">
       <p>Thank you for your business!</p>
-      <p>Generated by Devopod ERP on ${new Date().toLocaleString('en-IN')}</p>
+      <p>Generated by Vyapar360 on ${new Date().toLocaleString('en-IN')}</p>
     </div>
   `;
 
-    return generatePDFHTML(`Invoice ${invoice.invoice_number}`, content);
+  return generatePDFHTML(`Invoice ${invoice.invoice_number}`, content);
 }
 
 // Generate Report PDF HTML
 export function generateReportPDF(title, data, columns, summary = null) {
-    const tableRows = data.map(row => `
+  const tableRows = data.map(row => `
     <tr>
       ${columns.map(col => `<td${col.type === 'amount' ? ' class="amount"' : ''}>${col.type === 'amount' ? `₹${Number(row[col.key] || 0).toLocaleString('en-IN')}` :
-            col.type === 'date' ? new Date(row[col.key]).toLocaleDateString('en-IN') :
-                row[col.key] || '-'
-        }</td>`).join('')}
+    col.type === 'date' ? new Date(row[col.key]).toLocaleDateString('en-IN') :
+      row[col.key] || '-'
+    }</td>`).join('')}
     </tr>
   `).join('');
 
-    const content = `
+  const content = `
     <div class="header">
       <h1>${title}</h1>
       <p>Generated on ${new Date().toLocaleString('en-IN')}</p>
@@ -274,38 +274,38 @@ export function generateReportPDF(title, data, columns, summary = null) {
 
     <div class="footer">
       <p>Total Records: ${data.length}</p>
-      <p>Generated by Devopod ERP</p>
+      <p>Generated by Vyapar360</p>
     </div>
   `;
 
-    return generatePDFHTML(title, content);
+  return generatePDFHTML(title, content);
 }
 
 // Clean up old export files (older than 24 hours)
 export function cleanupOldExports() {
-    try {
-        const files = fs.readdirSync(exportsDir);
-        const now = Date.now();
-        const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+  try {
+    const files = fs.readdirSync(exportsDir);
+    const now = Date.now();
+    const maxAge = 24 * 60 * 60 * 1000; // 24 hours
 
-        files.forEach(file => {
-            const filePath = path.join(exportsDir, file);
-            const stats = fs.statSync(filePath);
-            if (now - stats.mtimeMs > maxAge) {
-                fs.unlinkSync(filePath);
-                console.log(`Cleaned up export: ${file}`);
-            }
-        });
-    } catch (error) {
-        console.error('Export cleanup error:', error);
-    }
+    files.forEach(file => {
+      const filePath = path.join(exportsDir, file);
+      const stats = fs.statSync(filePath);
+      if (now - stats.mtimeMs > maxAge) {
+        fs.unlinkSync(filePath);
+        console.log(`Cleaned up export: ${file}`);
+      }
+    });
+  } catch (error) {
+    console.error('Export cleanup error:', error);
+  }
 }
 
 export default {
-    exportToCSV,
-    exportToJSON,
-    generatePDFHTML,
-    generateInvoicePDF,
-    generateReportPDF,
-    cleanupOldExports
+  exportToCSV,
+  exportToJSON,
+  generatePDFHTML,
+  generateInvoicePDF,
+  generateReportPDF,
+  cleanupOldExports
 };

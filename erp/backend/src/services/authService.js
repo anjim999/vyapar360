@@ -85,7 +85,7 @@ export const verifyRegistration = async ({ name, rawEmail, otp, password }) => {
     const role = user.role || 'user';
 
     const token = jwt.sign(
-        { userId: user.id, email: user.email, name: user.name, role: user.role },
+        { userId: user.id, email: user.email, name: user.name, role: user.role, companyId: user.company_id || null },
         JWT_SECRET,
         { expiresIn: '30d' }
     );
@@ -98,6 +98,7 @@ export const verifyRegistration = async ({ name, rawEmail, otp, password }) => {
             name: user.name,
             email: user.email,
             role,
+            company_id: user.company_id || null,
         },
     };
 };
@@ -132,6 +133,7 @@ export const loginUser = async (rawEmail, password) => {
             email: user.email,
             name: user.name,
             role,
+            companyId: user.company_id || null,
         },
         JWT_SECRET,
         { expiresIn: '30d' }
@@ -148,6 +150,7 @@ export const loginUser = async (rawEmail, password) => {
             email: user.email,
             role,
             avatar: user.avatar || null,
+            company_id: user.company_id || null,
         },
     };
 };
@@ -316,6 +319,7 @@ export const googleLogin = async ({ idToken, credential, googleClient, GOOGLE_CL
         email: user.email,
         name: user.name,
         role,
+        companyId: user.company_id || null,
     };
 
     const jwtToken = jwt.sign(jwtPayload, JWT_SECRET, {
@@ -332,6 +336,7 @@ export const googleLogin = async ({ idToken, credential, googleClient, GOOGLE_CL
             role,
             avatar: user.avatar || avatar || null,
             google_id: user.google_id || googleId,
+            company_id: user.company_id || null,
         },
     };
 };

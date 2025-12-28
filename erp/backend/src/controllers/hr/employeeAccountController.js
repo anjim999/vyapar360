@@ -1,6 +1,7 @@
 // src/controllers/employeeAccountController.js
 import pool from "../../db/pool.js";
 import bcrypt from "bcryptjs";
+import { sendEmployeeWelcomeEmail } from "../../utils/mailer.js";
 
 // HR creates employee with user account
 export async function createEmployeeAccount(req, res) {
@@ -9,7 +10,8 @@ export async function createEmployeeAccount(req, res) {
         const { companyId, userId } = req.user;
         const {
             name, email, password, role, department_id,
-            employee_id, phone, designation, date_of_joining, salary
+            employee_id, phone, designation, date_of_joining, salary,
+            sendEmail = true // Option to skip email (default: send)
         } = req.body;
 
         // Validate required fields
@@ -32,15 +34,22 @@ export async function createEmployeeAccount(req, res) {
             return res.status(400).json({ success: false, error: "Email already registered" });
         }
 
+        // Get company name for email
+        const companyResult = await client.query(
+            'SELECT name FROM companies WHERE id = $1',
+            [companyId]
+        );
+        const companyName = companyResult.rows[0]?.name || 'Your Company';
+
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create user account
+        // Create user account with company_id
         const userResult = await client.query(
-            `INSERT INTO users (name, email, password, role, company_id, is_active, email_verified, created_by)
-       VALUES ($1, $2, $3, $4, $5, true, true, $6)
-       RETURNING id, name, email, role`,
-            [name, email, hashedPassword, role || 'employee', companyId, userId]
+            `INSERT INTO users (name, email, password, role, company_id, is_active, is_verified)
+       VALUES ($1, $2, $3, $4, $5, true, true)
+       RETURNING id, name, email, role, company_id`,
+            [name, email, hashedPassword, role || 'employee', companyId]
         );
 
         const newUser = userResult.rows[0];
@@ -55,6 +64,26 @@ export async function createEmployeeAccount(req, res) {
 
         await client.query('COMMIT');
 
+        // Send welcome email with credentials (after successful commit)
+        let emailSent = false;
+        if (sendEmail) {
+            try {
+                const emailResult = await sendEmployeeWelcomeEmail({
+                    to: email,
+                    name: name,
+                    companyName: companyName,
+                    tempPassword: password
+                });
+                emailSent = emailResult.success;
+                if (emailSent) {
+                    console.log(`✅ Welcome email sent to ${email} for ${companyName}`);
+                }
+            } catch (emailErr) {
+                console.error("Failed to send welcome email:", emailErr);
+                // Don't fail the request - employee is created, email is a bonus
+            }
+        }
+
         res.status(201).json({
             success: true,
             data: {
@@ -62,11 +91,14 @@ export async function createEmployeeAccount(req, res) {
                 employee: empResult.rows[0],
                 credentials: {
                     email,
-                    password, // Return password so HR can share it
+                    password, // Return password so HR can also share it manually
                     loginUrl: '/login'
-                }
+                },
+                emailSent: emailSent
             },
-            message: "Employee account created. Share these credentials with the employee."
+            message: emailSent
+                ? "Employee account created. Welcome email sent with credentials."
+                : "Employee account created. Please share credentials with the employee manually."
         });
 
     } catch (err) {
