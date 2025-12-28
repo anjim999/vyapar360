@@ -305,6 +305,32 @@ export async function sendNotificationEmail({ to, title, message, actionUrl, act
   });
 }
 
+// New Company Request Email (for Platform Admin)
+export async function sendNewCompanyRequestEmail({ to, adminName, companyName, userName, industry }) {
+  const content = `
+    <p style="color: #555; line-height: 1.6;">
+      Hi <strong>${adminName || 'Admin'}</strong>,
+    </p>
+    <p style="color: #555; line-height: 1.6;">
+      A new company registration request has been submitted and requires your review.
+    </p>
+    <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0;">
+      <p style="margin: 5px 0;"><strong>Company Name:</strong> ${companyName}</p>
+      <p style="margin: 5px 0;"><strong>Requested By:</strong> ${userName}</p>
+      <p style="margin: 5px 0;"><strong>Industry:</strong> ${industry}</p>
+    </div>
+    <div style="text-align: center;">
+      <a href="https://vyapar360.vercel.app/admin/company-requests" style="${templates.buttonStyle}">Review Request</a>
+    </div>
+  `;
+
+  return sendEmail({
+    to,
+    subject: `🏢 New Company Request: ${companyName}`,
+    htmlContent: wrapInTemplate('New Company Registration Request', content),
+  });
+}
+
 // Export all functions
 export default {
   sendOtpEmail,
@@ -314,5 +340,5 @@ export default {
   sendEmployeeWelcomeEmail,
   sendInvoiceEmail,
   sendNotificationEmail,
+  sendNewCompanyRequestEmail,
 };
-

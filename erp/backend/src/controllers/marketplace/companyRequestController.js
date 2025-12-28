@@ -1,7 +1,8 @@
 // src/controllers/companyRequestController.js
 import pool from "../../db/pool.js";
 import bcrypt from "bcryptjs";
-import { sendCompanyApprovalEmail } from "../../utils/mailer.js";
+import { sendCompanyApprovalEmail, sendNewCompanyRequestEmail } from "../../utils/mailer.js";
+import { createNotificationForRole } from "../../services/notificationService.js";
 
 // User submits company registration request
 export async function submitCompanyRequest(req, res) {
@@ -32,6 +33,10 @@ export async function submitCompanyRequest(req, res) {
             });
         }
 
+        // Get user name for notifications
+        const userResult = await pool.query(`SELECT name FROM users WHERE id = $1`, [userId]);
+        const userName = userResult.rows[0]?.name || 'User';
+
         // Create request
         const result = await pool.query(
             `INSERT INTO company_requests 
@@ -40,6 +45,37 @@ export async function submitCompanyRequest(req, res) {
        RETURNING *`,
             [userId, company_name, industry, description, email, phone, website, address, city, state, country, pincode, gstin]
         );
+
+        // Notify all platform admins via in-app notification
+        try {
+            await createNotificationForRole(
+                'platform_admin',
+                'company_request',
+                `New Company Request: ${company_name}`,
+                `${userName} has requested to register "${company_name}" (${industry})`,
+                '/admin/company-requests'
+            );
+        } catch (notifErr) {
+            console.error("Failed to send admin notification:", notifErr);
+        }
+
+        // Send email to platform admins
+        try {
+            const adminsResult = await pool.query(
+                `SELECT email, name FROM users WHERE role = 'platform_admin'`
+            );
+            for (const admin of adminsResult.rows) {
+                await sendNewCompanyRequestEmail({
+                    to: admin.email,
+                    adminName: admin.name,
+                    companyName: company_name,
+                    userName: userName,
+                    industry: industry
+                });
+            }
+        } catch (emailErr) {
+            console.error("Failed to send admin email:", emailErr);
+        }
 
         res.status(201).json({
             success: true,
@@ -51,6 +87,7 @@ export async function submitCompanyRequest(req, res) {
         res.status(500).json({ success: false, error: "Failed to submit request" });
     }
 }
+
 
 // Get user's own company requests
 export async function getMyCompanyRequests(req, res) {
