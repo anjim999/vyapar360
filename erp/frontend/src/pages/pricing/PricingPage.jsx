@@ -4,11 +4,27 @@ import { FiLoader } from 'react-icons/fi';
 import { usePricing } from '../../hooks/pricing/usePricing';
 import { useCheckout } from '../../hooks/pricing/useCheckout';
 import { PlanCard, BillingToggle, FeatureComparison, PricingFAQ } from '../../components/pricing';
+import SuccessModal from '../../components/pricing/SuccessModal';
 
 export default function PricingPage() {
     const [billingCycle, setBillingCycle] = useState('monthly');
-    const { plans, currentPlan, setCurrentPlan, loading, error, setError, user } = usePricing();
-    const { processingPlan, handleSelectPlan } = useCheckout({ user, setCurrentPlan, setError });
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [upgradedPlan, setUpgradedPlan] = useState('');
+
+    const { plans, currentPlan, setCurrentPlan, loading, error, setError, user, canManageSubscription } = usePricing();
+
+    const handleUpgradeSuccess = (planName) => {
+        setUpgradedPlan(planName);
+        setShowSuccessModal(true);
+    };
+
+    const { processingPlan, handleSelectPlan } = useCheckout({
+        user,
+        setCurrentPlan,
+        setError,
+        canManageSubscription,
+        onSuccess: handleUpgradeSuccess
+    });
 
     if (loading) {
         return (
@@ -75,6 +91,13 @@ export default function PricingPage() {
                 {/* FAQ Section */}
                 <PricingFAQ />
             </div>
+
+            {/* Success Modal */}
+            <SuccessModal
+                isOpen={showSuccessModal}
+                planName={upgradedPlan}
+                onClose={() => setShowSuccessModal(false)}
+            />
         </div>
     );
 }

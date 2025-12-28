@@ -112,11 +112,8 @@ export async function updateCompanyPlan(companyId, planId, billingCycle = 'month
             );
         }
 
-        // Update company's plan reference
-        await client.query(
-            `UPDATE companies SET subscription_plan_id = $1 WHERE id = $2`,
-            [planId, companyId]
-        );
+        // Subscription is tracked in company_subscriptions table
+        // No need to update companies table
 
         await client.query('COMMIT');
         return { success: true, plan: plan.name };
@@ -171,34 +168,75 @@ export async function createPaymentOrder(companyId, planId, billingCycle = 'mont
         return { success: true, free: true };
     }
 
-    // Create order in Razorpay
-    const orderId = 'order_' + crypto.randomBytes(8).toString('hex');
+    // Check if Razorpay credentials are configured
+    if (!RAZORPAY_KEY_ID || RAZORPAY_KEY_ID === 'rzp_test_demo' || !RAZORPAY_KEY_SECRET || RAZORPAY_KEY_SECRET === 'demo_secret') {
+        console.log('⚠️ Razorpay not configured, simulating test mode');
 
-    // In production, call Razorpay API:
-    // const response = await fetch(`${RAZORPAY_API_URL}/orders`, { ... });
+        // In demo mode without real credentials, simulate successful upgrade
+        await updateCompanyPlan(companyId, planId, billingCycle);
+        return {
+            success: true,
+            demo: true,
+            message: 'Demo mode: Plan upgraded without payment (Razorpay not configured)'
+        };
+    }
 
-    // Save order to database
-    await pool.query(
-        `INSERT INTO subscription_payments 
-         (company_id, razorpay_order_id, amount, currency, status, notes)
-         VALUES ($1, $2, $3, 'INR', 'pending', $4)`,
-        [companyId, orderId, amount, JSON.stringify({ planId, billingCycle })]
-    );
+    try {
+        // Create order in Razorpay via API
+        const auth = Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString('base64');
 
-    return {
-        success: true,
-        order: {
-            id: orderId,
-            amount: amount,  // In paise
-            currency: 'INR',
-            key: RAZORPAY_KEY_ID,
-            plan: {
-                id: plan.id,
-                name: plan.display_name,
-                billingCycle
-            }
+        const response = await fetch(`${RAZORPAY_API_URL}/orders`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Basic ${auth}`
+            },
+            body: JSON.stringify({
+                amount: amount, // Amount in paise
+                currency: 'INR',
+                receipt: `vyapar360_${companyId}_${Date.now()}`,
+                notes: {
+                    company_id: companyId,
+                    plan_id: planId,
+                    billing_cycle: billingCycle
+                }
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Razorpay order creation failed:', errorData);
+            throw new Error(errorData.error?.description || 'Failed to create Razorpay order');
         }
-    };
+
+        const order = await response.json();
+
+        // Save order to database
+        await pool.query(
+            `INSERT INTO subscription_payments 
+             (company_id, razorpay_order_id, amount, currency, status, notes)
+             VALUES ($1, $2, $3, 'INR', 'pending', $4)`,
+            [companyId, order.id, amount, JSON.stringify({ planId, billingCycle })]
+        );
+
+        return {
+            success: true,
+            order: {
+                id: order.id,
+                amount: order.amount,
+                currency: order.currency,
+                key: RAZORPAY_KEY_ID,
+                plan: {
+                    id: plan.id,
+                    name: plan.display_name,
+                    billingCycle
+                }
+            }
+        };
+    } catch (err) {
+        console.error('Error creating Razorpay order:', err);
+        throw new Error(err.message || 'Failed to create payment order');
+    }
 }
 
 // Verify payment after Razorpay checkout

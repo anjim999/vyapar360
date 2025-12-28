@@ -64,7 +64,7 @@ app.use(morgan("dev"));
 app.get("/api/health", (req, res) => {
     res.json({
         success: true,
-        message: "Devopod ERP API is running",
+        message: "Vyapar360 API is running",
         timestamp: new Date().toISOString()
     });
 });

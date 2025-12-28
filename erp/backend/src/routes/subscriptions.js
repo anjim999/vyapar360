@@ -1,9 +1,14 @@
 // src/routes/subscriptions.js
 import express from 'express';
 import { authMiddleware, requireCompany } from '../middleware/auth.js';
+import requireRole from '../middleware/requireRole.js';
 import * as subscriptionController from '../controllers/subscription/subscriptionController.js';
 
 const router = express.Router();
+
+// Role check for subscription management (purchase/cancel/modify)
+// Only company_admin, hr_manager, and manager can manage subscriptions
+const canManageSubscription = requireRole('company_admin', 'hr', 'hr_manager', 'manager');
 
 // =====================================================
 // PUBLIC ROUTES (No auth required)
@@ -28,25 +33,25 @@ router.get('/feature/:feature', authMiddleware, requireCompany, subscriptionCont
 // Get payment history
 router.get('/payments', authMiddleware, requireCompany, subscriptionController.getPaymentHistory);
 
-// Create payment order for subscription
-router.post('/create-order', authMiddleware, requireCompany, subscriptionController.createOrder);
+// Create payment order for subscription (admin/hr/manager only)
+router.post('/create-order', authMiddleware, requireCompany, canManageSubscription, subscriptionController.createOrder);
 
-// Verify payment after Razorpay checkout
-router.post('/verify-payment', authMiddleware, requireCompany, subscriptionController.verifyPayment);
+// Verify payment after Razorpay checkout (admin/hr/manager only)
+router.post('/verify-payment', authMiddleware, requireCompany, canManageSubscription, subscriptionController.verifyPayment);
 
-// Upgrade to free plan
-router.post('/upgrade-free', authMiddleware, requireCompany, subscriptionController.upgradeFree);
+// Upgrade to free plan (admin/hr/manager only)
+router.post('/upgrade-free', authMiddleware, requireCompany, canManageSubscription, subscriptionController.upgradeFree);
 
 // Get subscription summary
 router.get('/summary', authMiddleware, requireCompany, subscriptionController.getSubscriptionSummary);
 
-// Cancel subscription
-router.post('/cancel', authMiddleware, requireCompany, subscriptionController.cancelSubscription);
+// Cancel subscription (admin/hr/manager only)
+router.post('/cancel', authMiddleware, requireCompany, canManageSubscription, subscriptionController.cancelSubscription);
 
-// Reactivate subscription
-router.post('/reactivate', authMiddleware, requireCompany, subscriptionController.reactivateSubscription);
+// Reactivate subscription (admin/hr/manager only)
+router.post('/reactivate', authMiddleware, requireCompany, canManageSubscription, subscriptionController.reactivateSubscription);
 
-// Change billing cycle
-router.post('/change-billing-cycle', authMiddleware, requireCompany, subscriptionController.changeBillingCycle);
+// Change billing cycle (admin/hr/manager only)
+router.post('/change-billing-cycle', authMiddleware, requireCompany, canManageSubscription, subscriptionController.changeBillingCycle);
 
 export default router;
