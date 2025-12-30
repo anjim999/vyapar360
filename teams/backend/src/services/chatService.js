@@ -605,10 +605,12 @@ export const getDirectMessageHistory = async (userId, otherUserId, { limit = 50,
     );
     const clearedAt = clearResult.rows[0]?.deleted_at;
 
-    let query = `
+    // Fetch regular messages
+    let msgQuery = `
         SELECT dm.*, 
                u.name as sender_name, 
                u.avatar as sender_avatar,
+               'message' as message_type,
                COALESCE(
                    (SELECT json_agg(json_build_object('emoji', emoji, 'count', count::integer))
                     FROM (SELECT emoji, COUNT(*)::integer as count 
@@ -623,23 +625,79 @@ export const getDirectMessageHistory = async (userId, otherUserId, { limit = 50,
            OR (dm.user1_id = $2 AND dm.user2_id = $1))
     `;
 
-    const params = [userId, otherUserId];
+    const msgParams = [userId, otherUserId];
 
     if (clearedAt) {
-        query += ` AND dm.created_at > $${params.length + 1}`;
-        params.push(clearedAt);
+        msgQuery += ` AND dm.created_at > $${msgParams.length + 1}`;
+        msgParams.push(clearedAt);
     }
 
     if (before) {
-        query += ` AND dm.created_at < $${params.length + 1}`;
-        params.push(before);
+        msgQuery += ` AND dm.created_at < $${msgParams.length + 1}`;
+        msgParams.push(before);
     }
 
-    query += ` ORDER BY dm.created_at DESC LIMIT $${params.length + 1}`;
-    params.push(limit);
+    msgQuery += ` ORDER BY dm.created_at DESC LIMIT $${msgParams.length + 1}`;
+    msgParams.push(limit);
 
-    const result = await pool.query(query, params);
-    return { success: true, data: result.rows.reverse() };
+    const msgResult = await pool.query(msgQuery, msgParams);
+
+    // Fetch call history between these two users
+    let callQuery = `
+        SELECT 
+            ch.id,
+            ch.caller_id,
+            ch.receiver_id,
+            ch.call_type,
+            ch.status,
+            ch.duration_seconds,
+            ch.started_at as created_at,
+            ch.ended_at,
+            'call' as message_type,
+            caller.name as caller_name,
+            caller.avatar as caller_avatar,
+            receiver.name as receiver_name,
+            receiver.avatar as receiver_avatar
+        FROM call_history ch
+        LEFT JOIN users caller ON ch.caller_id = caller.id
+        LEFT JOIN users receiver ON ch.receiver_id = receiver.id
+        WHERE ((ch.caller_id = $1 AND ch.receiver_id = $2) 
+           OR (ch.caller_id = $2 AND ch.receiver_id = $1))
+        AND ch.status IN ('completed', 'declined', 'missed')
+    `;
+
+    const callParams = [userId, otherUserId];
+
+    if (clearedAt) {
+        callQuery += ` AND ch.started_at > $${callParams.length + 1}`;
+        callParams.push(clearedAt);
+    }
+
+    if (before) {
+        callQuery += ` AND ch.started_at < $${callParams.length + 1}`;
+        callParams.push(before);
+    }
+
+    callQuery += ` ORDER BY ch.started_at DESC LIMIT $${callParams.length + 1}`;
+    callParams.push(limit);
+
+    let callResult = { rows: [] };
+    try {
+        // Try to fetch call history - table may not exist yet
+        callResult = await pool.query(callQuery, callParams);
+    } catch (err) {
+        // Ignore if call_history table doesn't exist
+        console.log('Call history table may not exist yet:', err.message);
+    }
+
+    // Merge messages and calls, then sort by created_at
+    const allItems = [...msgResult.rows, ...callResult.rows];
+    allItems.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+    // Take only the last 'limit' items
+    const limitedItems = allItems.slice(-limit);
+
+    return { success: true, data: limitedItems };
 };
 
 export const searchUsers = async (companyId, userId, searchQuery) => {

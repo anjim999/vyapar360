@@ -249,10 +249,13 @@ app.use("/api/marketplace", authMiddleware, attachUserHeaders, createERPProxy("/
 // PROTECTED ROUTES - Auth validated by Gateway
 // ============================================
 
-// Teams Backend Routes (chat, teams)
+// Teams Backend Routes (chat, teams, calls)
 app.use("/api/chat", authMiddleware, attachUserHeaders, createTeamsProxy("/api/chat"));
 
 app.use("/api/teams", authMiddleware, attachUserHeaders, createTeamsProxy("/api/teams"));
+
+// Calls API - Routes to Teams Backend for call history
+app.use("/api/calls", authMiddleware, attachUserHeaders, createTeamsProxy("/api/calls"));
 
 // ERP Backend Routes (everything else)
 app.use("/api", authMiddleware, attachUserHeaders, createERPProxy("/api"));

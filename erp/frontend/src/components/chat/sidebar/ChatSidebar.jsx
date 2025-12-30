@@ -1,8 +1,119 @@
 // frontend/src/components/chat/sidebar/ChatSidebar.jsx
-import { FaSearch, FaPlus, FaBell, FaComments, FaChevronDown, FaChevronRight, FaHashtag, FaEllipsisV, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaSearch, FaPlus, FaBell, FaComments, FaChevronDown, FaChevronRight, FaHashtag, FaEllipsisV, FaEdit, FaTrash, FaPhone, FaPhoneAlt, FaVideo, FaPhoneSlash, FaArrowUp, FaArrowDown } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
 import { TabButton, QuickAction, ChatItem } from '../common/ChatComponents';
 import { FaCompass, FaAt } from 'react-icons/fa';
+import { useState, useEffect } from 'react';
+import api from '../../../api/axiosClient';
+
+// Call History Component
+function CallsHistory() {
+    const [calls, setCalls] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchCallHistory();
+    }, []);
+
+    const fetchCallHistory = async () => {
+        try {
+            const response = await api.get('/api/calls/history');
+            setCalls(response.data.calls || []);
+        } catch (error) {
+            console.error('Error fetching call history:', error);
+            setCalls([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const getCallIcon = (call, currentUserId) => {
+        const isCaller = call.caller_id === currentUserId;
+        const isMissed = call.status === 'missed' || call.status === 'declined';
+
+        if (call.call_type === 'video') {
+            return <FaVideo className={isMissed ? 'text-red-400' : 'text-green-400'} />;
+        }
+        return <FaPhone className={isMissed ? 'text-red-400' : 'text-green-400'} />;
+    };
+
+    const getCallDirection = (call, currentUserId) => {
+        const isCaller = call.caller_id === currentUserId;
+        return isCaller ? (
+            <FaArrowUp className="text-xs text-blue-400" title="Outgoing" />
+        ) : (
+            <FaArrowDown className="text-xs text-green-400" title="Incoming" />
+        );
+    };
+
+    const formatDuration = (seconds) => {
+        if (!seconds || seconds === 0) return '';
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+            </div>
+        );
+    }
+
+    if (calls.length === 0) {
+        return (
+            <div className="text-center py-8">
+                <FaPhone className="text-4xl text-gray-600 mx-auto mb-3" />
+                <p className="text-gray-500 text-sm">No call history yet</p>
+                <p className="text-gray-600 text-xs mt-1">Start a call from any chat!</p>
+            </div>
+        );
+    }
+
+    return (
+        <>
+            <p className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-2">Recent Calls</p>
+            {calls.map(call => {
+                const isMissed = call.status === 'missed' || call.status === 'declined';
+                const otherUser = call.caller_name === call.receiver_name ? call.caller_name :
+                    (call.caller_id === call.receiver_id ? call.caller_name :
+                        (call.caller_name || call.receiver_name || 'Unknown'));
+
+                return (
+                    <div
+                        key={call.id}
+                        className="flex items-center gap-3 px-2 py-3 rounded-md hover:bg-[#2b2b2b] cursor-pointer transition-colors"
+                    >
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold ${isMissed ? 'bg-red-500/20' : 'bg-green-500/20'}`}>
+                            {call.call_type === 'video' ? <FaVideo className={isMissed ? 'text-red-400' : 'text-green-400'} /> : <FaPhone className={isMissed ? 'text-red-400' : 'text-green-400'} />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm text-gray-200 truncate">{call.receiver_name || call.caller_name || 'Unknown'}</span>
+                                <FaArrowUp className="text-xs text-gray-500" />
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                                <span className={isMissed ? 'text-red-400' : 'text-gray-400'}>
+                                    {call.status === 'completed' ? 'Completed' :
+                                        call.status === 'missed' ? 'Missed' :
+                                            call.status === 'declined' ? 'Declined' : call.status}
+                                </span>
+                                {call.duration_seconds > 0 && (
+                                    <span className="text-gray-500">• {formatDuration(call.duration_seconds)}</span>
+                                )}
+                            </div>
+                        </div>
+                        <div className="text-xs text-gray-500">
+                            {call.started_at && formatDistanceToNow(new Date(call.started_at), { addSuffix: true })}
+                        </div>
+                    </div>
+                );
+            })}
+        </>
+    );
+}
+
 
 export default function ChatSidebar({
     activeNav,
@@ -91,6 +202,7 @@ export default function ChatSidebar({
                         <TabButton active={sidebarTab === 'unread'} onClick={() => setSidebarTab('unread')} badge={recentChats.filter(c => c.unread_count > 0).length}>Unread</TabButton>
                         <TabButton active={sidebarTab === 'chats'} onClick={() => setSidebarTab('chats')}>Chats</TabButton>
                         <TabButton active={sidebarTab === 'channels'} onClick={() => setSidebarTab('channels')} badge={channels.reduce((sum, c) => sum + (parseInt(c.unread_count) || 0), 0)}>Channels</TabButton>
+                        <TabButton active={sidebarTab === 'calls'} onClick={() => setSidebarTab('calls')}>Calls</TabButton>
                     </div>
 
                     {/* Search - Click to open New Chat modal */}
@@ -240,6 +352,8 @@ export default function ChatSidebar({
                                     <p className="text-center text-gray-500 text-sm py-4">You're all caught up! 🎉</p>
                                 )}
                             </>
+                        ) : sidebarTab === 'calls' ? (
+                            <CallsHistory />
                         ) : (
                             <>
                                 <p className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-2">Chats</p>

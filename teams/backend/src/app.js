@@ -7,6 +7,7 @@ import morgan from 'morgan';
 // Import routes
 import chatRoutes from './routes/chat.js';
 import teamsRoutes from './routes/teams.js';
+import callsRoutes from './routes/calls.js';
 import helmet from 'helmet';
 import compression from 'compression';
 import { v4 as uuidv4 } from 'uuid';
@@ -111,6 +112,7 @@ app.get("/api/health", (req, res) => {
 // ============================================
 app.use("/api/chat", chatRoutes);
 app.use("/api/teams", teamsRoutes);
+app.use("/api/calls", callsRoutes);
 
 // ============================================
 // STATIC FILES (for uploaded files)

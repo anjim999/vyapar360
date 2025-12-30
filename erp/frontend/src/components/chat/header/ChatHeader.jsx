@@ -27,12 +27,18 @@ export default function ChatHeader({
 }) {
     const { callUser } = useCall();
 
-    const handleStartCall = (video = true) => {
+    const handleStartCall = (isVideo = true) => {
         if (selectedChat) {
-            // 1:1 Call
-            callUser(selectedChat.other_user_id, selectedChat.other_user_name || getCurrentName());
+            // 1:1 Direct Message Call - Pass isVideo parameter correctly
+            callUser(selectedChat.other_user_id, selectedChat.other_user_name || getCurrentName(), isVideo);
+        } else if (selectedChannel) {
+            // Channel/Group call - show informative message for now
+            toast.info(
+                `Group ${isVideo ? 'video' : 'audio'} calls for channels are coming soon! For now, use direct messages for 1:1 calls.`,
+                { autoClose: 4000 }
+            );
         } else {
-            toast.info("Group calls coming soon!");
+            toast.warning("Please select a chat or channel first");
         }
     };
 

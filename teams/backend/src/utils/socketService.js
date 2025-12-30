@@ -40,6 +40,7 @@ export function initializeSocket(server) {
     // Connection handler
     io.on('connection', (socket) => {
         const userId = socket.userId;
+        console.log(`[SOCKET] New connection: ${socket.id} for User: ${userId}`);
 
         // Add user to connected users
         if (!connectedUsers.has(userId)) {
@@ -50,15 +51,16 @@ export function initializeSocket(server) {
         // Join company room if user belongs to a company
         if (socket.companyId) {
             socket.join(`company:${socket.companyId}`);
-        } else {
-            console.warn(`⚠️ User ${userId} has no companyId, cannot join company room`);
         }
 
         // Join user-specific room
-        socket.join(`user:${userId}`);
+        const userRoom = `user:${userId}`;
+        socket.join(userRoom);
+        console.log(`[SOCKET] Socket ${socket.id} joined room: ${userRoom}`);
 
         // Handle disconnect
         socket.on('disconnect', () => {
+            console.log(`[SOCKET] Disconnect: ${socket.id} for User: ${userId}`);
             const userSockets = connectedUsers.get(userId) || [];
             const index = userSockets.indexOf(socket);
             if (index > -1) {
@@ -69,29 +71,24 @@ export function initializeSocket(server) {
             }
         });
 
-        // Handle read notification
-        socket.on('notification:read', async (notificationId) => {
-            // Will be handled by notification route
-        });
-
-        // Handle read all notifications
-        socket.on('notification:read-all', async () => {
-            // Will be handled by notification route
-        });
-        // Handle receive message (if client emits it directly, though usually via API)
-        socket.on('chat:message', (data) => {
-            // Logic to forward message if needed, but we use API for persistence
-        });
-
         // ============================================
         // WEBRTC SIGNALING (1:1 & MESH GROUP CALLS)
         // ============================================
 
-        socket.on("call-user", ({ userToCall, signalData, from, name }) => {
-            io.to(`user:${userToCall}`).emit("call-made", {
+        socket.on("call-user", ({ userToCall, signalData, from, name, isVideoCall }) => {
+            const targetRoom = `user:${userToCall}`;
+            console.log(`[SOCKET] Call initiated by ${from} (${name}) to ${userToCall}`);
+            console.log(`[SOCKET] Emitting 'call-made' to room: ${targetRoom}`);
+
+            // Check if anyone is in the room
+            const roomSize = io.sockets.adapter.rooms.get(targetRoom)?.size || 0;
+            console.log(`[SOCKET] Target room ${targetRoom} has ${roomSize} sockets`);
+
+            io.to(targetRoom).emit("call-made", {
                 signal: signalData,
                 from,
-                name
+                name,
+                isVideoCall
             });
         });
 
@@ -123,10 +120,6 @@ export function initializeSocket(server) {
             socket.join(`call:${roomId}`);
             // Notify others in room that a user connected (so they can initiate P2P)
             socket.to(`call:${roomId}`).emit("user-connected-to-call", { userId, name: socket.userName || 'User' });
-
-            // Send back list of users in room? 
-            // In Mesh, the new user waits for offers, OR initiates offers to everyone.
-            // Simpler: Existing users call the new user.
         });
 
         socket.on("leave-call-room", (roomId) => {

@@ -116,12 +116,20 @@ export default function MessageList({
                 ) : (
                     (() => {
                         // Group consecutive images/videos from same sender
-                        const filteredMessages = messages.filter(msg => !searchQuery || msg.content?.toLowerCase().includes(searchQuery.toLowerCase()));
+                        const filteredMessages = messages.filter(msg => !searchQuery || msg.content?.toLowerCase().includes(searchQuery.toLowerCase()) || msg.message_type === 'call');
                         const processedMessages = [];
                         let i = 0;
 
                         while (i < filteredMessages.length) {
                             const msg = filteredMessages[i];
+
+                            // Handle call messages separately
+                            if (msg.message_type === 'call') {
+                                processedMessages.push({ type: 'call', message: msg });
+                                i++;
+                                continue;
+                            }
+
                             const isMedia = msg.file_url && (msg.file_type?.startsWith('image/') || msg.file_type?.startsWith('video/'));
 
                             if (isMedia) {
@@ -226,6 +234,101 @@ export default function MessageList({
 
                                                 <span className={`text-[10px] mt-1 px-1 block ${isMe ? 'text-right text-gray-300' : 'text-gray-400'}`}>{timeDisplay}</span>
                                             </div>
+                                        </div>
+                                    </div>
+                                );
+                            } else if (item.type === 'call') {
+                                // Render call message bubble (WhatsApp/Teams style)
+                                const call = item.message;
+                                const isOutgoing = call.caller_id === auth.user?.id;
+                                const callDate = call.created_at ? new Date(call.created_at) : new Date();
+                                const isToday = new Date().toDateString() === callDate.toDateString();
+                                const timeDisplay = isToday ? format(callDate, 'h:mm a') : format(callDate, 'MMM d, h:mm a');
+
+                                const isMissed = call.status === 'missed';
+                                const isDeclined = call.status === 'declined';
+                                const isCompleted = call.status === 'completed';
+                                const isVideoCall = call.call_type === 'video' || call.call_type === 'group_video';
+
+                                // Format duration
+                                const formatDuration = (seconds) => {
+                                    if (!seconds || seconds === 0) return null;
+                                    const mins = Math.floor(seconds / 60);
+                                    const secs = seconds % 60;
+                                    if (mins === 0) return `${secs}s`;
+                                    return `${mins} min${mins > 1 ? 's' : ''}`;
+                                };
+                                const duration = formatDuration(call.duration_seconds);
+
+                                // Determine status text and color
+                                let statusText = '';
+                                let statusColor = 'text-green-400';
+                                let bgColor = 'bg-green-500/20 border-green-500/30';
+                                let iconColor = 'text-green-400';
+
+                                if (isMissed) {
+                                    statusText = isOutgoing ? 'No answer' : 'Missed voice call';
+                                    statusColor = 'text-red-400';
+                                    bgColor = 'bg-red-500/10 border-red-500/20';
+                                    iconColor = 'text-red-400';
+                                } else if (isDeclined) {
+                                    statusText = isOutgoing ? 'Call declined' : 'Declined';
+                                    statusColor = 'text-red-400';
+                                    bgColor = 'bg-red-500/10 border-red-500/20';
+                                    iconColor = 'text-red-400';
+                                } else if (isCompleted) {
+                                    statusText = duration || 'Call ended';
+                                    statusColor = 'text-green-400';
+                                    bgColor = 'bg-green-500/20 border-green-500/30';
+                                    iconColor = 'text-green-400';
+                                }
+
+                                const callLabel = isVideoCall ? 'Video call' : 'Voice call';
+
+                                return (
+                                    <div key={`call-${call.id}`} className="flex justify-center my-3">
+                                        <div className={`inline-flex items-center gap-3 px-4 py-3 rounded-xl ${bgColor} border backdrop-blur-sm max-w-[300px]`}>
+                                            {/* Call Icon */}
+                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isCompleted ? 'bg-green-500/30' : 'bg-red-500/20'}`}>
+                                                {isVideoCall ? (
+                                                    <FaVideo className={`text-lg ${iconColor}`} />
+                                                ) : (
+                                                    <svg className={`w-5 h-5 ${iconColor}`} fill="currentColor" viewBox="0 0 24 24">
+                                                        <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z" />
+                                                        {(isMissed || isDeclined) && (
+                                                            <path d={isOutgoing ? "M6 6l12 12" : "M18 6L6 18"} stroke="currentColor" strokeWidth="2" fill="none" />
+                                                        )}
+                                                    </svg>
+                                                )}
+                                                {/* Arrow indicator for call direction */}
+                                                <div className={`absolute -bottom-0.5 -right-0.5 ${isOutgoing ? 'rotate-45' : '-rotate-135'}`}>
+                                                    {(isMissed || isDeclined) ? (
+                                                        <svg className="w-3 h-3 text-red-400" fill="currentColor" viewBox="0 0 24 24">
+                                                            <path d="M7 7l10 10M7 17L17 7" stroke="currentColor" strokeWidth="3" fill="none" />
+                                                        </svg>
+                                                    ) : null}
+                                                </div>
+                                            </div>
+
+                                            {/* Call Info */}
+                                            <div className="flex-1 min-w-0">
+                                                <div className="font-semibold text-white text-sm">{callLabel}</div>
+                                                <div className={`text-xs ${statusColor} flex items-center gap-1`}>
+                                                    {isOutgoing ? (
+                                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                                                        </svg>
+                                                    ) : (
+                                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                                        </svg>
+                                                    )}
+                                                    <span>{statusText}</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Time */}
+                                            <div className="text-xs text-gray-400">{timeDisplay}</div>
                                         </div>
                                     </div>
                                 );
