@@ -5,6 +5,7 @@ import Sidebar from "./components/layout/Sidebar.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { HelpButton } from "./components/common";
 import Chat from "./components/chat/Chat.jsx";
+import BotChatWidget from "./components/bot/BotChatWidget.jsx";
 
 import LoginPage from "./pages/auth/LoginPage.jsx";
 import RegisterPage from "./pages/auth/RegisterPage.jsx";
@@ -64,6 +65,7 @@ function AppLayout({ children }) {
       </div>
       <HelpButton />
       <Chat />
+      <BotChatWidget />
     </div>
   );
 }

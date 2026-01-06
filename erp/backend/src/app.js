@@ -25,6 +25,7 @@ import paymentRoutes from './routes/payments.js';
 import meetingRoutes from './routes/meetings.js';
 import calendarRoutes from './routes/calendar.js';
 import subscriptionRoutes from './routes/subscriptions.js';
+import botRoutes from './routes/bot.routes.js';
 
 // Import middleware
 // Import middleware
@@ -121,6 +122,7 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/meetings", meetingRoutes);
 app.use("/api/calendar", calendarRoutes);
 app.use("/api/subscriptions", subscriptionRoutes);
+app.use("/api/bot", botRoutes);
 
 // ============================================
 // STATIC FILES (for uploaded files)

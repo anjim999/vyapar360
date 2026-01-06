@@ -17,3 +17,6 @@ export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 // Gateway communication
 export const GATEWAY_URL = process.env.GATEWAY_URL;
 export const GATEWAY_INTERNAL_SECRET = process.env.GATEWAY_INTERNAL_SECRET;
+
+// AI Bot
+export const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
