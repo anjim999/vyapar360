@@ -117,9 +117,13 @@ export function Sidebar({ isOpen, onClose }) {
             },
             {
                 name: "Settings",
-                path: "/settings",
                 icon: <FaCog />,
-                roles: [ROLES.COMPANY_ADMIN],
+                roles: [ROLES.COMPANY_ADMIN, ROLES.HR_MANAGER],
+                children: [
+                    { name: "General", path: "/settings", icon: <FaCog /> },
+                    { name: "Email Templates", path: "/settings/email-templates", icon: <FaEnvelope /> },
+                    { name: "Gmail Integration", path: "/settings/email", icon: <FaEnvelope /> },
+                ],
             },
         ];
 

@@ -55,6 +55,9 @@ import NotificationsPage from "./pages/NotificationsPage.jsx";
 import CalendarPage from "./pages/CalendarPage.jsx";
 import PricingPage from "./pages/pricing/PricingPage.jsx";
 
+// Settings
+import { EmailTemplatesPage, EmailIntegrationPage } from "./pages/settings";
+
 function AppLayout({ children }) {
   return (
     <div className="min-h-screen theme-bg-primary">
@@ -149,6 +152,8 @@ export default function App() {
         {/* PROFILE & SETTINGS */}
         <Route path="/profile" element={<ProtectedRoute><AppLayout><ProfilePage /></AppLayout></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><AppLayout><SettingsPage /></AppLayout></ProtectedRoute>} />
+        <Route path="/settings/email-templates" element={<ProtectedRoute><AppLayout><EmailTemplatesPage /></AppLayout></ProtectedRoute>} />
+        <Route path="/settings/email" element={<ProtectedRoute><AppLayout><EmailIntegrationPage /></AppLayout></ProtectedRoute>} />
         <Route path="/notifications" element={<ProtectedRoute><AppLayout><NotificationsPage /></AppLayout></ProtectedRoute>} />
 
         {/* TEAMS CHAT - Full screen */}

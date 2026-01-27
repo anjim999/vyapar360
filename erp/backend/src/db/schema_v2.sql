@@ -601,3 +601,22 @@ CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
 CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages(conversation_id);
 CREATE INDEX IF NOT EXISTS idx_companies_industry ON companies(industry);
 CREATE INDEX IF NOT EXISTS idx_companies_city ON companies(city);
+
+-- =====================================================
+-- PART 12: AI BOT CONVERSATION HISTORY
+-- =====================================================
+
+-- BOT MESSAGES (Per-user conversation history)
+CREATE TABLE IF NOT EXISTS bot_messages (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  role VARCHAR(10) NOT NULL, -- 'user' or 'bot'
+  content TEXT NOT NULL,
+  intent VARCHAR(50),
+  data_insight TEXT,
+  suggestions JSONB DEFAULT '[]',
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_bot_messages_user ON bot_messages(user_id);
+CREATE INDEX IF NOT EXISTS idx_bot_messages_created ON bot_messages(user_id, created_at DESC);

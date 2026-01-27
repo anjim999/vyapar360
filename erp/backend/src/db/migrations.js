@@ -709,6 +709,25 @@ export async function runMigrations() {
       CREATE INDEX IF NOT EXISTS idx_subscription_payments_razorpay ON subscription_payments(razorpay_payment_id);
     `);
 
+    // ============================================
+    // AI BOT CONVERSATION HISTORY
+    // ============================================
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS bot_messages (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        role VARCHAR(10) NOT NULL,
+        content TEXT NOT NULL,
+        intent VARCHAR(50),
+        data_insight TEXT,
+        suggestions JSONB DEFAULT '[]',
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_bot_messages_user ON bot_messages(user_id);
+      CREATE INDEX IF NOT EXISTS idx_bot_messages_created ON bot_messages(user_id, created_at DESC);
+    `);
+
     console.log("✅ All migrations completed successfully");
   } catch (err) {
     console.error("❌ Migration error:", err.message);

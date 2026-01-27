@@ -1,12 +1,12 @@
 // src/routes/bot.routes.js - AI Bot Routes
 import express from "express";
-import { authenticateToken } from "../middleware/auth.js";
-import { chat, getInsights, getSuggestions } from "../controllers/botController.js";
+import { authMiddleware } from "../middleware/auth.js";
+import { chat, getInsights, getSuggestions, getHistory, deleteHistory } from "../controllers/botController.js";
 
 const router = express.Router();
 
 // All bot routes require authentication
-router.use(authenticateToken);
+router.use(authMiddleware);
 
 /**
  * POST /api/bot/chat
@@ -25,5 +25,17 @@ router.get("/insights", getInsights);
  * Get suggested questions based on user role
  */
 router.get("/suggestions", getSuggestions);
+
+/**
+ * GET /api/bot/history
+ * Get chat history for current user
+ */
+router.get("/history", getHistory);
+
+/**
+ * DELETE /api/bot/history
+ * Clear chat history for current user
+ */
+router.delete("/history", deleteHistory);
 
 export default router;

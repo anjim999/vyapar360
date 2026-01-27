@@ -14,7 +14,7 @@ function getSender() {
 }
 
 // Base email sender function
-async function sendEmail({ to, subject, htmlContent, textContent }) {
+export async function sendEmail({ to, subject, htmlContent, textContent }) {
   if (!BREVO_API_KEY) {
     console.warn('BREVO_API_KEY not configured - email not sent');
     return { success: false, error: 'Email service not configured' };
